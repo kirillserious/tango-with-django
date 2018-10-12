@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from rango.models import Category, Page
-from rango.forms import CategoryForm, PageForm
+from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -77,3 +77,51 @@ def add_page(request, category_name_slug):
     context_dict = {'form':form, 'category': cat}
 
     return render(request, 'rango/add_page.html', context_dict)
+
+def register(request):
+    # Логическое значение указывающее шаблону прошла ли регистрация успешно.
+    # В начале ему присвоено значение False. Код изменяет значение на True, если регистрация прошла успешно.
+    registered = False
+    # Если это HTTP POST, мы заинтересованы в обработке данных формы.
+    if request.method == 'POST':
+        # Попытка извлечь необработанную информацию из формы.
+        # Заметьте, что мы используем UserForm и UserProfileForm.
+        user_form = UserForm(data=request.POST)
+        profile_form = UserProfileForm(data=request.POST)
+        # Если в две формы введены правильные данные...
+        if user_form.is_valid() and profile_form.is_valid():
+            # Сохранение данных формы с информацией о пользователе в базу данных.
+            user = user_form.save()
+            # Теперь мы хэшируем пароль с помощью метода set_password.
+            # После хэширования мы можем обновить объект "пользователь".
+            user.set_password(user.password)
+            user.save()
+            # Теперь разберемся с экземпляром UserProfile.
+            # Поскольку мы должны сами назначить атрибут пользователя, необходимо приравнять commit=False.
+            # Это отложит сохранение модели, чтобы избежать проблем целостности.
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            # Предоставил ли пользователь изображение для профиля?
+            # Если да, необходимо извлечь его из формы и поместить в модель UserProfile.
+            if 'picture' in request.FILES:
+                profile.picture = request.FILES['picture']
+            # Теперь мы сохраним экземпляр модели UserProfile.
+            profile.save()
+
+            # Обновляем нашу переменную, чтобы указать, что регистрация прошла успешно.
+            registered = True
+        # Неправильная формы или формы - ошибки или ещё какая-нибудь проблема?
+        # Вывести проблемы в терминал.
+        # Они будут также показаны пользователю.
+        else:
+            print(user_form.errors, profile_form.errors)
+    # Не HTTP POST запрос, следователь мы выводим нашу форму, используя два экземпляра ModelForm.
+    # Эти формы будут не заполненными и готовы к вводу данных от пользователя.
+    else:
+        user_form = UserForm()
+        profile_form = UserProfileForm()
+    # Выводим шаблон в зависимости от контекста.
+    return render(request,
+            'rango/register.html',
+            {'user_form': user_form, 'profile_form': profile_form, 'registered': registered} )
+
