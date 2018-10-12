@@ -27,8 +27,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'logout' %}">
+                        <a href="{% url 'auth_logout' %}?next=/rango/">
                             Logout
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'auth_password_change' %}">
+                            Сменить пароль
                         </a>
                     </li>
                     <li>
@@ -38,12 +43,12 @@
                     </li>
                 {% else %}
                     <li>
-                        <a href="{% url 'register' %}">
+                        <a href="{% url 'registration_register' %}">
                             Register Here
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'login' %}">
+                        <a href="{% url 'auth_login' %}">
                             Login
                         </a>
                     </li>

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rango',
+    'registration',
 ]
 
 MIDDLEWARE = [
@@ -131,4 +132,11 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_URL = '/rango/login/'
+#registation
+REGISTRATION_OPEN = True        # Если равно True, то пользователи могут регистрироваться
+ACCOUNT_ACTIVATION_DAYS = 7     # время в течении которого можно активировать аккаунт;
+                                # в качестве примера выбрано 7 дней или одна неделя, но Вы можете указать другое значение.
+REGISTRATION_AUTO_LOGIN = True  # Если равно  True, то пользователь будет автоматически входить в систему.
+LOGIN_REDIRECT_URL = '/rango/'  # Страница, на которую будут попадать пользователи, после успешного входа в систему.
+LOGIN_URL = '/accounts/login/'  # Страница, на которую перенаправляются пользователи, если они не вошли в систему и
+SIMPLE_BACKEND_REDIRECT_URL ='/rango/'                                # пытаются получить доступ к страницам, которые требуют аутентификации
