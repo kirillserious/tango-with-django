@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 from rango.models import Category, Page
@@ -12,11 +12,9 @@ def index(request):
     context_dict = {'categories': category_list,
         'pages': page_list}
     return render(request, 'rango/index.html', context_dict)
-
 def about(request):
     context_dict = {'emmessage': "It's about"}
     return render(request, 'rango/about.html', context_dict)
-
 def category(request, category_name_slug):
     context_dict = {}
     try:
@@ -29,7 +27,6 @@ def category(request, category_name_slug):
     except Category.DoesNotExist:
         pass
     return render(request, 'rango/category.html', context_dict)
-
 def add_category(request):
     # HTTP POST?
     if request.method == 'POST':
@@ -53,7 +50,6 @@ def add_category(request):
     # Форма с ошибкой (или ошибка с данных), форма не была получена...
     # Вывести форму с сообщениями об ошибках (если они были).
     return render(request, 'rango/add_category.html', {'form': form})
-
 def add_page(request, category_name_slug):
 
     try:
@@ -79,7 +75,6 @@ def add_page(request, category_name_slug):
     context_dict = {'form':form, 'category': cat}
 
     return render(request, 'rango/add_page.html', context_dict)
-
 def register(request):
     # Логическое значение указывающее шаблону прошла ли регистрация успешно.
     # В начале ему присвоено значение False. Код изменяет значение на True, если регистрация прошла успешно.
@@ -126,7 +121,6 @@ def register(request):
     return render(request,
             'rango/register.html',
             {'user_form': user_form, 'profile_form': profile_form, 'registered': registered} )
-
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -148,3 +142,7 @@ def user_login(request):
 @login_required
 def restricted(request):
     return HttpResponse("Since you're logged in, you can see this text")
+@login_required
+def user_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/rango/')
